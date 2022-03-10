@@ -1,16 +1,138 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const compression = require("compression");
-const path = require("path");
+const cookieSession = require('cookie-session');
+const compression = require('compression');
+const path = require('path');
+const {
+  createUser,
+  getUserById,
+  login,
+  getUserByEmail,
+  updatePassword,
+  addPasswordResetCode,
+  findPasswordResetCode,
+} = require('./db');
+const cryptoRandomString = require('crypto-random-string');
+
+const { SESSION_SECRET } = require('../secrets.json');
+const PORT = 3001;
 
 app.use(compression());
 
-app.use(express.static(path.join(__dirname, "..", "client", "public")));
+app.use(express.static(path.join(__dirname, '..', 'client', 'public')));
 
-app.get("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+app.use(express.urlencoded({ extended: false }));
+
+app.use(express.json());
+
+app.use(
+  cookieSession({
+    secret: SESSION_SECRET,
+    maxAge: 1000 * 60 * 60 * 24 * 14,
+    sameSite: true,
+  })
+);
+
+app.post('/api/users', (req, res) => {
+  createUser(req.body)
+    .then((user) => {
+      console.log(`Created user: ${user.id}`);
+      req.session.user_id = user.id;
+      res.json({});
+    })
+    .catch((error) => {
+      console.log(error);
+      if (error.constraint === 'users_email_key') {
+        res.status(400).json({
+          error: 'That email already exists',
+        });
+        return;
+      }
+      if (error.code === '23502') {
+        res.status(400).json({
+          error: 'All fields must be filled!',
+        });
+      }
+      res.status(400).json({
+        error: 'Oops! An error has occurred. Try again later.',
+      });
+    });
 });
 
-app.listen(process.env.PORT || 3001, function () {
-    console.log("I'm listening.");
+app.post('/api/login', (req, res) => {
+  const { email_address, password } = req.body;
+  if (!email_address || !password) {
+    res.status(400).json({
+      error: 'You must fill out every field!',
+    });
+    return;
+  }
+
+  login(req.body).then((foundUser) => {
+    if (!foundUser) {
+      res.status(401).json({
+        error: 'Some data doesnt seem alright, please check it out!',
+      });
+    } else {
+      req.session.user_id = foundUser.id;
+      res.json({});
+    }
+  });
+});
+
+app.post('/api/password/reset', async (req, res) => {
+  const { email_address } = req.body;
+  if (!email_address) {
+    res.status(400).json({
+      error: 'You need to provide an email address first!',
+    });
+    return;
+  }
+  const foundUser = await getUserByEmail(email_address);
+  if (!foundUser) {
+    res.status(400).json({
+      error: 'This email does not match any registered one.',
+    });
+    return;
+  }
+  const code = cryptoRandomString({ length: 6 });
+  await addPasswordResetCode({ email_address, code });
+  res.json({});
+});
+
+app.put('/api/password/reset', async (req, res) => {
+  const { code, password } = req.body;
+  if (!code || !password) {
+    res.status(400).json({
+      error: 'You need to provide correct information on both fields!',
+    });
+    return;
+  }
+  const foundCode = await findPasswordResetCode(code);
+  if (!foundCode) {
+    res.status(400).json({
+      error: 'This code is not correct!',
+    });
+    return;
+  }
+  await updatePassword({ email_address: foundCode.email, password });
+  res.json({});
+});
+
+app.get('/api/users/me', (req, res) => {
+  getUserById(req.session.user_id).then((user) => {
+    if (!user) {
+      res.json(null);
+      return;
+    }
+    res.json(user);
+  });
+});
+
+app.get('*', function (req, res) {
+  res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+});
+
+app.listen(process.env.PORT || PORT, function () {
+  console.log(`[Server] Listening on port ${PORT}.`);
 });
