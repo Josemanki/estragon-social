@@ -6,3 +6,35 @@ body {
   max-width: 450px;
   margin: 0 auto;
 }
+
+.header-avatar {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+  outline: 1px solid black;
+}
+
+input[type='file'] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 5px;
+  cursor: pointer;
+  width: 100px;
+  text-align: center;
+  height: 30px;
+  border-radius: 5px;
+}
+
+.profile-picture-small {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+.profile-picture-big {
+  width: 200px;
+  height: 200px;
+}

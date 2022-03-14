@@ -63,8 +63,18 @@ const findPasswordResetCode = (code) => {
 
 const updatePassword = ({ password, email_address }) => {
   return getHash(password).then((password_hash) => {
-    return db.query('UPDATE users SET password_hash = $1 WHERE email = $2 RETURNING *', [password_hash, email_address]);
+    return db.query('UPDATE users SET password_hash = $1 WHERE email = $2', [password_hash, email_address]);
   });
+};
+
+const updateProfilePicture = ({ url, user_id }) => {
+  return db
+    .query('UPDATE users SET profile_picture_url = $1 WHERE id = $2 RETURNING *', [url, user_id])
+    .then(({ rows }) => rows[0]);
+};
+
+const updateUserBio = ({ bio, user_id }) => {
+  return db.query('UPDATE users SET bio = $1 WHERE id = $2 RETURNING *', [bio, user_id]).then(({ rows }) => rows[0]);
 };
 
 module.exports = {
@@ -75,4 +85,6 @@ module.exports = {
   addPasswordResetCode,
   findPasswordResetCode,
   updatePassword,
+  updateProfilePicture,
+  updateUserBio,
 };

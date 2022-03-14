@@ -1,4 +1,6 @@
 const express = require('express');
+const { Bucket, s3upload } = require('./s3');
+const { uploader } = require('./uploader');
 const app = express();
 const cookieSession = require('cookie-session');
 const compression = require('compression');
@@ -11,6 +13,8 @@ const {
   updatePassword,
   addPasswordResetCode,
   findPasswordResetCode,
+  updateProfilePicture,
+  updateUserBio,
 } = require('./db');
 const cryptoRandomString = require('crypto-random-string');
 
@@ -125,8 +129,32 @@ app.get('/api/users/me', (req, res) => {
       res.json(null);
       return;
     }
-    res.json(user);
+    const { first_name, last_name, email, profile_picture_url, bio } = user;
+    res.json({ first_name, last_name, email, profile_picture_url, bio });
   });
+});
+
+app.post('/api/users/me/picture', uploader.single('profile_picture'), s3upload, (req, res) => {
+  const url = `https://s3.amazonaws.com/${Bucket}/${req.file.filename}`;
+  updateProfilePicture({ url, user_id: req.session.user_id })
+    .then((image) => {
+      console.log('an image', image);
+      res.json(image);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
+app.post('/api/users/me/bio', (req, res) => {
+  console.log(req.body);
+  updateUserBio({ bio: req.body.bio, user_id: req.session.user_id })
+    .then((bio) => {
+      res.json(bio);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 app.get('*', function (req, res) {

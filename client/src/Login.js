@@ -9,4 +9,13 @@ const Login = () => {
   );
 };
 
+fetch('/api/users/me')
+  .then((response) => response.json())
+  .then((user) => {
+    if (user) {
+      history.replaceState({}, '', '/');
+      return;
+    }
+  });
+
 export default Login;
