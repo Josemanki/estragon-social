@@ -36,15 +36,33 @@ const getRecentUsers = (limit = 3) => {
   return db.query('SELECT * FROM users ORDER BY id DESC LIMIT $1', [limit]).then(({ rows }) => rows);
 };
 
-const getUserFriendship = (sender_id, recipient_id) => {
+const getFriendship = ({ first_id, second_id }) => {
   return db
     .query(
       `SELECT * FROM friendships
   WHERE sender_id = $1 AND recipient_id = $2
-     OR sender_id = $2 AND recipient_id = $1;`,
-      [bio, user_id]
+     OR sender_id = $2 AND recipient_id = $1`,
+      [first_id, second_id]
     )
     .then(({ rows }) => rows[0]);
+};
+
+const makeNewFriendship = ({ sender_id, recipient_id }) => {
+  return db.query(`INSERT INTO friendships (sender_id, recipient_id) VALUES ($1, $2)`, [sender_id, recipient_id]);
+};
+
+const acceptFriendship = ({ sender_id, recipient_id }) => {
+  return db.query(`UPDATE friendships SET accepted = true WHERE sender_id = $1 AND recipient_id = $2`, [
+    sender_id,
+    recipient_id,
+  ]);
+};
+
+const deleteFriendship = ({ first_id, second_id }) => {
+  return db.query(
+    `DELETE FROM friendships WHERE sender_id = $1 AND recipient_id = $2 OR sender_id = $2 AND recipient_id = $1`,
+    [first_id, second_id]
+  );
 };
 
 const searchUsers = (query) => {
@@ -110,4 +128,8 @@ module.exports = {
   updateUserBio,
   getRecentUsers,
   searchUsers,
+  getFriendship,
+  makeNewFriendship,
+  acceptFriendship,
+  deleteFriendship,
 };

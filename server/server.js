@@ -17,6 +17,10 @@ const {
   updateUserBio,
   getRecentUsers,
   searchUsers,
+  getFriendship,
+  makeNewFriendship,
+  acceptFriendship,
+  deleteFriendship,
 } = require('./db');
 const cryptoRandomString = require('crypto-random-string');
 
@@ -180,6 +184,72 @@ app.post('/api/users/me/bio', (req, res) => {
     .catch((error) => {
       console.log(error);
     });
+});
+
+app.get('/api/friendships/:target_id', async (req, res) => {
+  const friendship = await getFriendship({
+    first_id: req.session.user_id,
+    second_id: req.params.target_id,
+  });
+
+  if (!friendship) {
+    res.status(404).json({
+      error: `No friendship between users ${req.session.user_id} and ${req.params.target_id}`,
+    });
+    return;
+  }
+  res.json(friendship);
+});
+
+app.post('/api/friendships/:target_id', async (req, res) => {
+  try {
+    await makeNewFriendship({
+      sender_id: req.session.user_id,
+      recipient_id: +req.params.target_id,
+    });
+    res.json({
+      message: `Successfully sent a friendship request!`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      error: `An error has occurred, try again later.`,
+    });
+  }
+});
+
+app.put('/api/friendships/:target_id', async (req, res) => {
+  try {
+    await acceptFriendship({
+      sender_id: req.params.target_id,
+      recipient_id: req.session.user_id,
+    });
+    res.json({
+      message: `You are now friends!`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      error: `An error has occurred, try again later.`,
+    });
+  }
+});
+
+app.delete('/api/friendships/:target_id', async (req, res) => {
+  try {
+    await deleteFriendship({
+      first_id: req.session.user_id,
+      second_id: req.params.target_id,
+    });
+    res.json({
+      message: `You are no longer friends.`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      error: `An error has occurred, try again later.`,
+    });
+  }
 });
 
 app.get('*', function (req, res) {

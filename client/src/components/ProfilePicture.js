@@ -6,7 +6,7 @@ const ProfilePicture = ({ avatar, setModalVisible, size, isEditable }) => {
   };
 
   return (
-    <div className="mx-2" onClick={isEditable ? handlePictureClick : undefined}>
+    <div onClick={isEditable ? handlePictureClick : undefined}>
       <img
         src={avatar || DEFAULT_PICTURE}
         className={`avatar profile-picture-${size || 'small'} ${isEditable && 'cursor-pointer'}`}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router';
+import FriendshipButton from '../components/FriendshipButton';
 import ProfilePicture from '../components/ProfilePicture';
-import BioEditor from '../components/BioEditor';
 
 const OtherProfile = () => {
   const params = useParams();
@@ -10,7 +10,6 @@ const OtherProfile = () => {
   useEffect(() => {
     fetch(`/api/users/${params.user_id}`)
       .then((res) => {
-        console.log(params);
         return res.json();
       })
       .then((res) => {
@@ -24,7 +23,10 @@ const OtherProfile = () => {
 
   return (
     <div className="d-flex my-4">
-      <ProfilePicture avatar={userData.profile_picture_url} size={'big'} />
+      <div className="d-flex flex-column gap-2">
+        <ProfilePicture avatar={userData.profile_picture_url} size={'big'} />
+        <FriendshipButton id={params.user_id} />
+      </div>
       <div className="d-flex flex-column mx-4">
         <h2>{`${userData.first_name}'s Profile`}</h2>
       </div>

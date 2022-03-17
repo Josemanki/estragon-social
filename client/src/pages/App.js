@@ -25,7 +25,6 @@ const App = () => {
           history.replaceState({}, '', '/login');
           return;
         }
-        console.log(user);
         setUser(user);
       });
   }, []);
