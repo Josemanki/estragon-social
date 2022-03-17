@@ -1,4 +1,4 @@
-import LoginForm from './components/LoginForm';
+import LoginForm from '../components/LoginForm';
 
 const Login = () => {
   return (
@@ -12,7 +12,7 @@ const Login = () => {
 fetch('/api/users/me')
   .then((response) => response.json())
   .then((user) => {
-    if (user) {
+    if (!user) {
       history.replaceState({}, '', '/');
       return;
     }

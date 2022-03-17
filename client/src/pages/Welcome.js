@@ -8,17 +8,15 @@ const Welcome = () => {
     <div id="welcome">
       <h1>Social Media Name</h1>
       <BrowserRouter>
-        <div>
-          <Route exact path="/">
-            <Registration />
-          </Route>
-          <Route path="/login">
-            <Login />
-          </Route>
-          <Route path="/reset-password">
-            <ResetPassword />
-          </Route>
-        </div>
+        <Route exact path="/">
+          <Registration />
+        </Route>
+        <Route path="/login">
+          <Login />
+        </Route>
+        <Route path="/reset-password">
+          <ResetPassword />
+        </Route>
       </BrowserRouter>
     </div>
   );

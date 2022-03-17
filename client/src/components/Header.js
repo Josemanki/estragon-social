@@ -8,7 +8,7 @@ const Header = ({ avatar, setModalVisible }) => {
         <Navbar.Brand href="/">
           <h1 className="mx-2">SocialMedia</h1>
         </Navbar.Brand>
-        <ProfilePicture size={'small'} avatar={avatar} setModalVisible={setModalVisible} />
+        <ProfilePicture isEditable size={'small'} avatar={avatar} setModalVisible={setModalVisible} />
       </Container>
     </Navbar>
   );

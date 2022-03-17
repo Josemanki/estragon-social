@@ -15,6 +15,8 @@ const {
   findPasswordResetCode,
   updateProfilePicture,
   updateUserBio,
+  getRecentUsers,
+  searchUsers,
 } = require('./db');
 const cryptoRandomString = require('crypto-random-string');
 
@@ -132,6 +134,29 @@ app.get('/api/users/me', (req, res) => {
     const { first_name, last_name, email, profile_picture_url, bio } = user;
     res.json({ first_name, last_name, email, profile_picture_url, bio });
   });
+});
+
+app.get('/api/users/recent', async (req, res) => {
+  const recentUsers = await getRecentUsers(req.query.limit);
+  res.json(recentUsers);
+});
+
+app.get('/api/users/:user_id', async (req, res) => {
+  getUserById(req.params.user_id).then((user) => {
+    if (!user) {
+      res.status(404).json({
+        error: 'User not found',
+      });
+      return;
+    }
+    const { first_name, last_name, email, profile_picture_url, bio } = user;
+    res.json({ first_name, last_name, email, profile_picture_url, bio });
+  });
+});
+
+app.get('/api/users/search', async (req, res) => {
+  const foundUsers = await searchUsers(req.query.q);
+  res.json(foundUsers);
 });
 
 app.post('/api/users/me/picture', uploader.single('profile_picture'), s3upload, (req, res) => {

@@ -7,11 +7,14 @@ body {
   margin: 0 auto;
 }
 
-.header-avatar {
-  cursor: pointer;
+.avatar {
   border-radius: 4px;
   padding: 2px;
   outline: 1px solid black;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 
 input[type='file'] {

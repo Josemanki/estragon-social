@@ -32,6 +32,27 @@ const getUserByEmail = (email) => {
   return db.query('SELECT * FROM users WHERE email = $1', [email]).then(({ rows }) => rows[0]);
 };
 
+const getRecentUsers = (limit = 3) => {
+  return db.query('SELECT * FROM users ORDER BY id DESC LIMIT $1', [limit]).then(({ rows }) => rows);
+};
+
+const getUserFriendship = (sender_id, recipient_id) => {
+  return db
+    .query(
+      `SELECT * FROM friendships
+  WHERE sender_id = $1 AND recipient_id = $2
+     OR sender_id = $2 AND recipient_id = $1;`,
+      [bio, user_id]
+    )
+    .then(({ rows }) => rows[0]);
+};
+
+const searchUsers = (query) => {
+  return db
+    .query('SELECT * FROM users WHERE first_name ILIKE $1 OR last_name ILIKE $1', [query + '%'])
+    .then(({ rows }) => rows);
+};
+
 const login = ({ email_address, password }) => {
   return getUserByEmail(email_address).then((foundUser) => {
     if (!foundUser) {
@@ -87,4 +108,6 @@ module.exports = {
   updatePassword,
   updateProfilePicture,
   updateUserBio,
+  getRecentUsers,
+  searchUsers,
 };
