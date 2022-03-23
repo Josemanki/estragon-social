@@ -2,6 +2,10 @@ body {
   background-color: ghostwhite;
 }
 
+li {
+  list-style: none;
+}
+
 .register-form-wrapper {
   max-width: 450px;
   margin: 0 auto;
@@ -35,6 +39,11 @@ input[type='file'] {
 .profile-picture-small {
   max-width: 50px;
   max-height: 50px;
+}
+
+.profile-picture-medium {
+  max-width: 100px;
+  max-height: 100px;
 }
 
 .profile-picture-big {

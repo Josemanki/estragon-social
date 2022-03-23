@@ -116,6 +116,47 @@ const updateUserBio = ({ bio, user_id }) => {
   return db.query('UPDATE users SET bio = $1 WHERE id = $2 RETURNING *', [bio, user_id]).then(({ rows }) => rows[0]);
 };
 
+const getFriendships = (user_id) => {
+  return db
+    .query(
+      `SELECT friendships.accepted, friendships.id AS friendship_id,
+  users.id AS user_id,
+  users.first_name, users.last_name, users.profile_picture_url
+  FROM friendships
+  JOIN users
+  ON (
+      users.id = friendships.sender_id
+      AND friendships.recipient_id = $1)
+  OR (
+      users.id = friendships.recipient_id
+      AND friendships.sender_id = $1
+      AND accepted = true)`,
+      [user_id]
+    )
+    .then(({ rows }) => rows);
+};
+
+const getChatMessages = ({ limit }) => {
+  return db
+    .query(
+      `SELECT chat_messages.*, users.id, users.first_name, users.last_name
+          FROM chat_messages
+          JOIN users
+          ON users.id = chat_messages.sender_id
+          ORDER BY chat_messages.id DESC
+          LIMIT $1
+`,
+      [limit]
+    )
+    .then((result) => result.rows);
+};
+
+const createChatMessage = ({ sender_id, text }) => {
+  return db
+    .query(`INSERT INTO chat_messages (sender_id, text) VALUES ($1, $2)`, [sender_id, text])
+    .then((result) => result.rows[0]);
+};
+
 module.exports = {
   createUser,
   getUserById,
@@ -132,4 +173,7 @@ module.exports = {
   makeNewFriendship,
   acceptFriendship,
   deleteFriendship,
+  getFriendships,
+  createChatMessage,
+  getChatMessages,
 };

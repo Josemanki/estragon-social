@@ -5,6 +5,9 @@ const app = express();
 const cookieSession = require('cookie-session');
 const compression = require('compression');
 const path = require('path');
+const { Server } = require('http');
+const socketCreator = require('socket.io');
+const server = Server(app);
 const {
   createUser,
   getUserById,
@@ -21,6 +24,9 @@ const {
   makeNewFriendship,
   acceptFriendship,
   deleteFriendship,
+  getFriendships,
+  createChatMessage,
+  getChatMessages,
 } = require('./db');
 const cryptoRandomString = require('crypto-random-string');
 
@@ -35,13 +41,34 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.json());
 
-app.use(
-  cookieSession({
-    secret: SESSION_SECRET,
-    maxAge: 1000 * 60 * 60 * 24 * 14,
-    sameSite: true,
-  })
-);
+const cookieSessionMiddleware = cookieSession({
+  secret: SESSION_SECRET,
+  maxAge: 1000 * 60 * 60 * 24 * 14,
+  sameSite: true,
+});
+
+const io = socketCreator(server, {
+  allowRequest: (req, callback) => callback(null, req.headers.referer.startsWith(`http://localhost:3000/`)),
+});
+
+app.use(cookieSessionMiddleware);
+io.use(function (socket, next) {
+  cookieSessionMiddleware(socket.request, socket.request.res, next);
+});
+
+io.on('connection', async (socket) => {
+  console.log('[socialnetwork:socket] incoming socket connection', socket.id);
+  console.log(socket.request.session);
+  const { user_id } = socket.request.session;
+  if (!user_id) {
+    return socket.disconnect(true);
+  }
+
+  // send back the latest 10 msgs to every new connected user
+  // with socket.emit:
+  const messages = await getChatMessages({ limit: 10 });
+  socket.emit('recentMessages', messages.reverse());
+});
 
 app.post('/api/users', (req, res) => {
   createUser(req.body)
@@ -186,6 +213,11 @@ app.post('/api/users/me/bio', (req, res) => {
     });
 });
 
+app.get('/api/friendships', async (req, res) => {
+  const friendships = await getFriendships(req.session.user_id);
+  res.json(friendships);
+});
+
 app.get('/api/friendships/:target_id', async (req, res) => {
   const friendship = await getFriendship({
     first_id: req.session.user_id,
@@ -256,6 +288,6 @@ app.get('*', function (req, res) {
   res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
 });
 
-app.listen(process.env.PORT || PORT, function () {
+server.listen(process.env.PORT || PORT, function () {
   console.log(`[Server] Listening on port ${PORT}.`);
 });

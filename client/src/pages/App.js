@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PictureModal from '../components/PictureModal';
 import Header from '../components/Header';
 import Profile from './Profile';
+import Friends from './Friends';
 import OtherProfile from './OtherProfile';
 import FindPeople from './FindPeople';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
@@ -48,6 +49,9 @@ const App = () => {
             </Route>
             <Route path="/user/:user_id">
               <OtherProfile />
+            </Route>
+            <Route path="/friends">
+              <Friends />
             </Route>
             <Route exact path="/">
               <div>Home</div>

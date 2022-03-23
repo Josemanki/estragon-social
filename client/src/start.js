@@ -4,6 +4,18 @@ import { Container } from 'react-bootstrap';
 import Welcome from './pages/Welcome';
 import App from './pages/App';
 
+import io from 'socket.io-client';
+
+const socket = io.connect();
+
+socket.on('connection', () => {
+  console.log('connection');
+});
+
+socket.on('recentMessages', (messages) => {
+  console.log('messages', messages);
+});
+
 function HelloWorld() {
   return (
     <Container>
