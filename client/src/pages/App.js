@@ -5,6 +5,7 @@ import Profile from './Profile';
 import Friends from './Friends';
 import OtherProfile from './OtherProfile';
 import FindPeople from './FindPeople';
+import Chat from '../components/Chat';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
@@ -52,6 +53,9 @@ const App = () => {
             </Route>
             <Route path="/friends">
               <Friends />
+            </Route>
+            <Route path="/chat">
+              <Chat />
             </Route>
             <Route exact path="/">
               <div>Home</div>

@@ -50,3 +50,13 @@ input[type='file'] {
   width: 200px;
   height: 200px;
 }
+
+.card-img-top {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.hoverable-card:hover {
+  transform: scale(1.05);
+}

@@ -32,7 +32,7 @@ const getUserByEmail = (email) => {
   return db.query('SELECT * FROM users WHERE email = $1', [email]).then(({ rows }) => rows[0]);
 };
 
-const getRecentUsers = (limit = 3) => {
+const getRecentUsers = (limit = 4) => {
   return db.query('SELECT * FROM users ORDER BY id DESC LIMIT $1', [limit]).then(({ rows }) => rows);
 };
 
@@ -139,11 +139,11 @@ const getFriendships = (user_id) => {
 const getChatMessages = ({ limit }) => {
   return db
     .query(
-      `SELECT chat_messages.*, users.id, users.first_name, users.last_name
+      `SELECT chat_messages.*, users.first_name, users.last_name
           FROM chat_messages
           JOIN users
           ON users.id = chat_messages.sender_id
-          ORDER BY chat_messages.id DESC
+          ORDER BY id DESC
           LIMIT $1
 `,
       [limit]

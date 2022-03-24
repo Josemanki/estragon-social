@@ -58,7 +58,6 @@ io.use(function (socket, next) {
 
 io.on('connection', async (socket) => {
   console.log('[socialnetwork:socket] incoming socket connection', socket.id);
-  console.log(socket.request.session);
   const { user_id } = socket.request.session;
   if (!user_id) {
     return socket.disconnect(true);
@@ -68,6 +67,27 @@ io.on('connection', async (socket) => {
   // with socket.emit:
   const messages = await getChatMessages({ limit: 10 });
   socket.emit('recentMessages', messages.reverse());
+
+  socket.on('sendMessage', async ({ text }) => {
+    // save to db
+    const message = await createChatMessage({
+      sender_id: user_id,
+      text,
+    });
+
+    console.log(message);
+    // get user info
+    const user = await getUserById(user_id);
+    const { first_name, last_name, profile_picture_url } = user;
+
+    // forward it to everybody - use io.emit!
+    io.emit('newMessage', {
+      first_name,
+      last_name,
+      profile_picture_url,
+      ...message,
+    });
+  });
 });
 
 app.post('/api/users', (req, res) => {
@@ -186,8 +206,9 @@ app.get('/api/users/:user_id', async (req, res) => {
 });
 
 app.get('/api/users/search', async (req, res) => {
-  const foundUsers = await searchUsers(req.query.q);
-  res.json(foundUsers);
+  console.log(req.query.q);
+  // const foundUsers = await searchUsers(req.query.q);
+  // res.json(foundUsers);
 });
 
 app.post('/api/users/me/picture', uploader.single('profile_picture'), s3upload, (req, res) => {

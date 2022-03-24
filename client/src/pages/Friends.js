@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
+import { CardGroup, Card, Row, Col, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 export const Friends = () => {
   const DEFAULT_PICTURE = 'https://dummyimage.com/400x400/fff/aaa';
@@ -40,49 +41,68 @@ export const Friends = () => {
   }
 
   return (
-    <section className="">
-      <h2>Friends</h2>
+    <main>
       <section>
-        <h3>Wannabes</h3>
-        <ul>
-          {wannabes.map((user) => {
-            return (
-              <li className="d-flex" key={`wannabes-${user.user_id}`}>
-                <img
-                  src={user.profile_picture_url || DEFAULT_PICTURE}
-                  alt="Profile Picture"
-                  className="profile-picture-medium"
-                />
-                <div className="d-flex flex-column justify-content-center align-items-center">
-                  {`${user.first_name} ${user.last_name}`}
-                  <Button onClick={() => onAcceptClick(user)}>Accept</Button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <Card className="mt-4">
+          <Card.Header as="h2">Friend Requests</Card.Header>
+          <CardGroup className={`p-3 d-block ${wannabes.length ? null : `d-flex justify-content-center`}`}>
+            <Row xs={1} md={3} lg={4} className="g-4">
+              {wannabes.length ? (
+                wannabes.map((user) => {
+                  return (
+                    <Col key={`wannabes-${user.id}`}>
+                      <Card className="p-3 align-items-center">
+                        <Card.Img
+                          className="profile-picture-big"
+                          variant="top"
+                          src={user.profile_picture_url || DEFAULT_PICTURE}
+                        />
+                        <Card.Title>{`${user.first_name} ${user.last_name}`}</Card.Title>
+                        <Card.Text>{user.bio || 'This user has no bio yet!'}</Card.Text>
+                        <Button onClick={() => onAcceptClick(user)}>Accept</Button>
+                      </Card>
+                    </Col>
+                  );
+                })
+              ) : (
+                <Col lg={true}>
+                  <Card.Text>There are no recent requests for you!</Card.Text>
+                </Col>
+              )}
+            </Row>
+          </CardGroup>
+        </Card>
       </section>
       <section>
-        <h3>Friends</h3>
-        <ul>
-          {friends.map((user) => {
-            return (
-              <li className="d-flex" key={`friends-${user.user_id}`}>
-                <img
-                  src={user.profile_picture_url || DEFAULT_PICTURE}
-                  alt="Profile Picture"
-                  className="profile-picture-medium"
-                />
-                <div className="d-flex flex-column justify-content-center align-items-center">
-                  {`${user.first_name} ${user.last_name}`}
-                  <Button onClick={() => onUnfriendClick(user)}>Unfriend</Button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <Card className="mt-4">
+          <Card.Header as="h2">Friends</Card.Header>
+          <CardGroup className={`p-3 d-block ${wannabes.length ? null : `d-flex justify-content-center`}`}>
+            <Row xs={1} md={3} lg={4} className="g-4">
+              {friends.length ? (
+                friends.map((user) => {
+                  return (
+                    <Col key={`friends-${user.id}`}>
+                      <Card className="p-3 align-items-center">
+                        <Card.Img variant="top" src={user.profile_picture_url || DEFAULT_PICTURE} />
+                        <Card.Title>{`${user.first_name} ${user.last_name}`}</Card.Title>
+                        <Card.Text>{user.bio || 'This user has no bio yet!'}</Card.Text>
+                        <Button onClick={() => onUnfriendClick(user)}>Unfriend</Button>
+                      </Card>
+                    </Col>
+                  );
+                })
+              ) : (
+                <Col lg={true}>
+                  <Card.Text>
+                    You don't have any friends yet! You might want to <Link to="/find-people">find people</Link>!
+                  </Card.Text>
+                </Col>
+              )}
+            </Row>
+          </CardGroup>
+        </Card>
       </section>
-    </section>
+    </main>
   );
 };
 
