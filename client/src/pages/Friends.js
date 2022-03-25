@@ -45,12 +45,12 @@ export const Friends = () => {
       <section>
         <Card className="mt-4">
           <Card.Header as="h2">Friend Requests</Card.Header>
-          <CardGroup className={`p-3 d-block ${wannabes.length ? null : `d-flex justify-content-center`}`}>
-            <Row xs={1} md={3} lg={4} className="g-4">
+          <CardGroup className={`${wannabes.length ? `p-3 d-block ` : `d-flex justify-content-center`}`}>
+            <Row xs={1} sm={2} md={3} lg={4}>
               {wannabes.length ? (
                 wannabes.map((user) => {
                   return (
-                    <Col key={`wannabes-${user.id}`}>
+                    <Col key={`wannabes-${user.user_id}`}>
                       <Card className="p-3 align-items-center">
                         <Card.Img
                           className="profile-picture-big"
@@ -65,7 +65,7 @@ export const Friends = () => {
                   );
                 })
               ) : (
-                <Col lg={true}>
+                <Col lg={true} className="w-100 m-4">
                   <Card.Text>There are no recent requests for you!</Card.Text>
                 </Col>
               )}
@@ -74,14 +74,14 @@ export const Friends = () => {
         </Card>
       </section>
       <section>
-        <Card className="mt-4">
+        <Card className="my-4">
           <Card.Header as="h2">Friends</Card.Header>
-          <CardGroup className={`p-3 d-block ${wannabes.length ? null : `d-flex justify-content-center`}`}>
-            <Row xs={1} md={3} lg={4} className="g-4">
+          <CardGroup className={`${friends.length ? `p-3 d-block` : `d-flex justify-content-center`}`}>
+            <Row xs={1} sm={2} md={3} lg={4}>
               {friends.length ? (
                 friends.map((user) => {
                   return (
-                    <Col key={`friends-${user.id}`}>
+                    <Col key={`friends-${user.user_id}`}>
                       <Card className="p-3 align-items-center">
                         <Card.Img variant="top" src={user.profile_picture_url || DEFAULT_PICTURE} />
                         <Card.Title>{`${user.first_name} ${user.last_name}`}</Card.Title>
@@ -92,7 +92,7 @@ export const Friends = () => {
                   );
                 })
               ) : (
-                <Col lg={true}>
+                <Col lg={true} className="w-100 m-4">
                   <Card.Text>
                     You don't have any friends yet! You might want to <Link to="/find-people">find people</Link>!
                   </Card.Text>

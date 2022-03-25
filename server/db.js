@@ -139,7 +139,7 @@ const getFriendships = (user_id) => {
 const getChatMessages = ({ limit }) => {
   return db
     .query(
-      `SELECT chat_messages.*, users.first_name, users.last_name
+      `SELECT chat_messages.*, users.first_name, users.last_name, users.profile_picture_url
           FROM chat_messages
           JOIN users
           ON users.id = chat_messages.sender_id
@@ -153,8 +153,8 @@ const getChatMessages = ({ limit }) => {
 
 const createChatMessage = ({ sender_id, text }) => {
   return db
-    .query(`INSERT INTO chat_messages (sender_id, text) VALUES ($1, $2)`, [sender_id, text])
-    .then((result) => result.rows[0]);
+    .query(`INSERT INTO chat_messages (sender_id, text) VALUES ($1, $2) RETURNING *`, [sender_id, text])
+    .then(({ rows }) => rows[0]);
 };
 
 module.exports = {

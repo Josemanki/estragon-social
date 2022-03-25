@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import ProfilePicture from './ProfilePicture';
+import { Card, ListGroup, Form, Button, InputGroup } from 'react-bootstrap';
 
 let socket;
 
-export const Chat = () => {
+export const Chat = ({ user_id }) => {
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.toLocaleDateString()} @ ${date.toLocaleTimeString()}`;
+  };
+
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -26,6 +33,7 @@ export const Chat = () => {
   useEffect(() => {
     // listen to an new incoming message
     socket.on('newMessage', (newMessage) => {
+      console.log('newMessage', newMessage);
       setMessages([...messages, newMessage]);
     });
 
@@ -45,20 +53,39 @@ export const Chat = () => {
 
   return (
     <section className="chat">
-      <h2>Chat</h2>
-      {messages.length ? (
-        <ul className="chat-messages">
-          {messages.map((message) => (
-            <li key={message.id}>{message.text}</li>
-          ))}
-        </ul>
-      ) : (
-        <div className="chat-placeholder">It is very silent here.</div>
-      )}
-      <form className="form" onSubmit={onSubmit} autoComplete="off">
-        <input name="text" required placeholder="Type something..." />
-        <button>Send</button>
-      </form>
+      <Card className="my-4">
+        <Card.Header as="h2">Chat</Card.Header>
+        {messages.length ? (
+          <ListGroup className="text-break" as="ul">
+            {messages.map((message) => (
+              <ListGroup.Item key={`chat-message-${message.id}`} className="d-flex gap-2">
+                <ProfilePicture avatar={message.profile_picture_url} size={'small'} />
+                <div className="ms-2 me-auto">
+                  <div>
+                    <span
+                      className={`fw-bold ${user_id === message.sender_id ? 'text-success' : 'text-primary'}`}
+                    >{`${message.first_name} ${message.last_name}`}</span>
+                    <span className="mx-2 text-muted font-12">{formatDate(message.created_at)}</span>
+                  </div>
+                  {message.text}
+                </div>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        ) : (
+          <div className="chat-placeholder">It is very silent here.</div>
+        )}
+        <Form onSubmit={onSubmit}>
+          <Form.Group className="m-3" controlId="findPeople.search">
+            <InputGroup>
+              <Form.Control type="text" name="text" placeholder="Type something!" />
+              <Button variant="primary" type="submit">
+                Send
+              </Button>
+            </InputGroup>
+          </Form.Group>
+        </Form>
+      </Card>
     </section>
   );
 };

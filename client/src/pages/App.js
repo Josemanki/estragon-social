@@ -11,13 +11,7 @@ import { Container } from 'react-bootstrap';
 
 const App = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [user, setUser] = useState({
-    first_name: '',
-    last_name: '',
-    profile_picture_url: '',
-    email: '',
-    bio: '',
-  });
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     fetch('/api/users/me')
@@ -27,6 +21,7 @@ const App = () => {
           history.replaceState({}, '', '/login');
           return;
         }
+        console.log(user);
         setUser(user);
       });
   }, []);
@@ -55,10 +50,10 @@ const App = () => {
               <Friends />
             </Route>
             <Route path="/chat">
-              <Chat />
+              <Chat user_id={user.id} />
             </Route>
             <Route exact path="/">
-              <div>Home</div>
+              <Profile userData={user} setUser={setUser} />
             </Route>
           </Switch>
         </BrowserRouter>

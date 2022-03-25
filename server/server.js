@@ -75,7 +75,6 @@ io.on('connection', async (socket) => {
       text,
     });
 
-    console.log(message);
     // get user info
     const user = await getUserById(user_id);
     const { first_name, last_name, profile_picture_url } = user;
@@ -137,6 +136,11 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+app.post('/api/logout', (req, res) => {
+  req.session.user_id = null;
+  res.json({});
+});
+
 app.post('/api/password/reset', async (req, res) => {
   const { email_address } = req.body;
   if (!email_address) {
@@ -182,14 +186,20 @@ app.get('/api/users/me', (req, res) => {
       res.json(null);
       return;
     }
-    const { first_name, last_name, email, profile_picture_url, bio } = user;
-    res.json({ first_name, last_name, email, profile_picture_url, bio });
+    const { first_name, last_name, email, profile_picture_url, bio, id } = user;
+    res.json({ first_name, last_name, email, profile_picture_url, bio, id });
   });
 });
 
 app.get('/api/users/recent', async (req, res) => {
   const recentUsers = await getRecentUsers(req.query.limit);
   res.json(recentUsers);
+});
+
+app.get('/api/users/search', async (req, res) => {
+  console.log(req.query.q);
+  const foundUsers = await searchUsers(req.query.q);
+  res.json(foundUsers);
 });
 
 app.get('/api/users/:user_id', async (req, res) => {
@@ -203,12 +213,6 @@ app.get('/api/users/:user_id', async (req, res) => {
     const { first_name, last_name, email, profile_picture_url, bio } = user;
     res.json({ first_name, last_name, email, profile_picture_url, bio });
   });
-});
-
-app.get('/api/users/search', async (req, res) => {
-  console.log(req.query.q);
-  // const foundUsers = await searchUsers(req.query.q);
-  // res.json(foundUsers);
 });
 
 app.post('/api/users/me/picture', uploader.single('profile_picture'), s3upload, (req, res) => {

@@ -6,7 +6,9 @@ import ResetPassword from './ResetPassword';
 const Welcome = () => {
   return (
     <div id="welcome">
-      <h1>Social Media Name</h1>
+      <a className="text-decoration-none" href="/">
+        <h1 className="fw-bold text-primary ">Facebook(Not)</h1>
+      </a>
       <BrowserRouter>
         <Route exact path="/">
           <Registration />

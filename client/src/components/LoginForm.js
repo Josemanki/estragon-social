@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 const LoginForm = () => {
+  let history = useHistory();
   const [formData, setFormData] = useState({ email_address: '', password: '' });
   const [error, setError] = useState('');
 
@@ -30,7 +32,8 @@ const LoginForm = () => {
         setError(result.error);
         return;
       }
-      window.location.reload();
+      history.push('/');
+      location.reload();
     } catch (error) {
       console.log(error);
     }
